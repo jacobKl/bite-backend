@@ -15,18 +15,14 @@ router.use(express.urlencoded())
 
 router.post("/save", (req, res) => {
     const form = formidable({})
-    form.uploadDir = __dirname + "/../visuals/"
+    form.uploadDir = __dirname + "/../static/"
     form.parse(req, async function (err, fields, files) {
-        const name = files.file.originalFilename
-        const type = files.file.mimetype
-        const path = files.file.newFilename + files.file.originalFilename.substr(files.file.originalFilename.lastIndexOf("."))
 
-        const visual = new Visual(name, type, path)
-        const results = await database.createVisual(visual)
+        fs.rename(files.file.filepath, form.uploadDir + files.file.originalFilename, (err) => {})
 
-        fs.rename(files.file.filepath, form.uploadDir + path, (err) => {})
-
-        res.send(results)
+        res.send({
+            name: files.file.originalFilename
+        })
     });
 })
 
