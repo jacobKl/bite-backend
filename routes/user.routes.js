@@ -27,9 +27,22 @@ router.get("/registery", (req, res) => {
 })
 
 router.post("/registery", async (req, res) => {
+    //Walidacja wszystkich pól
+    //hashowanie haseł
     const { password, nick, name, surname, isTrainer, email } = req.body;
+    const isEmail = validateEmail(email)
+
+    if(!checkIfNotEmpty(password, nick, name, surname, email)){
+        res.end("Któreś z pól jest puste")
+        return
+    }
+
+    if(!isEmail){
+        res.end("Email nie jest poprawny")
+        return
+    }
+
     const userExist = await database.userExist(nick, email);
-    console.log(userExist)
     if (userExist) {
         res.end("user exists");
     } else {
@@ -52,11 +65,22 @@ router.get("/login", (req, res) => {
 
 router.post("/login", async (req, res) => {
     const { password, username } = req.body;
-    let user = await database.getUser(username, password)
-    user = user[0]
-    const userObject = new User(user.password, user.nick, user.name, user.surname, user.role, user.email);
+    
+    if(!checkIfNotEmpty(password,username)){
+        res.end("Któreś z pól jest puste")
+        return
+    }
 
-    res.send(JSON.stringify(user))
+    let user = await database.getUser(username, password)
+
+    if(!user){
+        res.end("Nie poprawne hasło lub nazwa użytkownika")
+        return
+    }
+
+    const userObject = new User(user.id,user.email,user.password, user.name, user.surname, user.avatar,user.role, user.money, user.nick);
+
+    res.send(JSON.stringify(userObject))
 })
 
 router.post("/loginuser", async (req, res) => {
@@ -66,5 +90,20 @@ router.post("/loginuser", async (req, res) => {
 
     res.send("gonwo")
 })
+
+function checkIfNotEmpty(...items){
+    let isNotEmpty = true
+    items.forEach(item =>{
+        if(item.length === 0){
+            isNotEmpty = false
+        }
+    })
+    return isNotEmpty
+}
+function validateEmail(email){
+if(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) return true
+else return false
+}
+
 
 module.exports = router;

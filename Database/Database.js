@@ -3,8 +3,8 @@ const { Sequelize } = require("sequelize");
 
 class Database {
     constructor() {
-        this.client = null
-        this.connect()
+        // this.client = null
+        // this.connect()
         this.sequelize = null
         this.connect2()
     }
