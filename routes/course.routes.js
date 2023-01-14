@@ -42,4 +42,12 @@ router.get("/", async (req, res) => {
     res.send(courses)
 })
 
+router.get("/:id", async (req, res) => {
+    const course = await database.getCourse(req.params.id)
+
+    course[0]['steps'] = await database.getCourseSteps(course[0]['id'])
+
+    res.send(course[0])
+})
+
 module.exports = router;

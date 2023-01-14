@@ -18,13 +18,22 @@ module.exports = class CoursesDatabase {
         })
     }
 
+    getCourse(id) {
+        return new Promise(async (resolve, reject) => {
+            const [results, metadata] = await this.database.sequelize.query(`SELECT *
+                                                                             FROM courses
+                                                                             WHERE id = ${id}`)
+
+            resolve(results)
+        })
+    }
+
     getCourseSteps(id) {
         return new Promise(async (resolve, reject) => {
             const [results, metadata] = await this.database.sequelize.query(`SELECT *
                                                                              FROM course_parts
                                                                              WHERE course_id = ${id}`)
 
-            console.log(results)
             resolve(results)
         })
     }
