@@ -1,16 +1,20 @@
-
 const express = require("express")
-//const Course = require("../classes/Course")
+const Course = require("../classes/Course")
 const app = express()
-const Database = require("../Database/UserDatabase")
+const Database = require("../Database/CourseDatabase")
 const path = require('path')
 
 const database = new Database()
 
 const router = express.Router()
 
-router.post("/attachment", async (req, res) => {
+router.post("/create", async (req, res) => {
+    const {name, description, image, author, prize, category, difficulty, step} = req.body
+    const course = new Course(name, description, image, author, prize, category, difficulty, step)
 
+    const results = await database.createCourse(course)
+
+    res.end(results)
 })
 
 module.exports = router;

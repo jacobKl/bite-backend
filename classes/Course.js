@@ -1,5 +1,5 @@
 class Course {
-    constructor(name, description, image = '', author = '', prize = '', category = '', difficulty = '') {
+    constructor(name, description, image = '', author = '', prize = '', category = '', difficulty = '', step = 1) {
         this.name = name;
         this.description = description;
         this.image = image;
@@ -10,4 +10,4 @@ class Course {
     }
 }
 
-module.exports = User
+module.exports = Course
