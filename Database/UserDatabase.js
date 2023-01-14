@@ -26,7 +26,7 @@ module.exports = class UserDatabase extends Database {
                         email: user.email,
                         role: user.role
                     },
-                    type: QueryTypes.SELECT
+                    type: QueryTypes.INSERT
                 }  
             )
         })
@@ -74,5 +74,18 @@ module.exports = class UserDatabase extends Database {
             return new User(...Object.values(results));
         }
         
+    }
+
+    async editUser(name,surname,avatar,id){
+        this.sequelize.query("UPDATE users SET name=:name, surname=:surname WHERE id=:id",
+            {
+                replacements:{
+                    name:name,
+                    surname:surname,
+                    id:id
+                },
+                type:QueryTypes.UPDATE
+            }
+        )
     }
 }
