@@ -8,18 +8,15 @@ module.exports = class UserDatabase extends Database {
     }
     /**
      *
-     * @param {User} user
+     * @param visual
      */
-    registerUser(user) {
-        this.client.query(sql(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money) 
+    createVisual(visual) {
+        this.client.query(sql(`INSERT INTO visuals(name, type, data) 
         VALUES(:name, :surname, :password,:nick,:email,:role,'',0)`)(
             {
-                name: user.name,
-                surname: user.surname,
-                password: user.password,
-                nick: user.nick,
-                email: user.email,
-                role: user.role
+                name: visual.name,
+                type: visual.type,
+                data: visual.data
             }
         ))
     }

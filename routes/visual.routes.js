@@ -1,7 +1,7 @@
 const express = require("express")
 const Visual = require("../classes/Visual")
 const app = express()
-const Database = require("../Database/UserDatabase")
+const Database = require("../Database/VisualDatabase")
 const path = require('path')
 const fs = require('fs')
 const formidable = require('formidable')
@@ -20,6 +20,10 @@ router.post("/save", async (req, res) => {
         const name = files.file.originalFilename
         const type = files.file.mimeType
         const data = files.file.newFilename + files.file.originalFilename.substr(files.file.originalFilename.lastIndexOf(".") + 1)
+
+        const visual = new Visual(name, type, data)
+
+        database.createVisual(visual)
 
         fs.rename(files.file.filepath, form.uploadDir + data, (err) => {})
     });
