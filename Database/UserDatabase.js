@@ -61,12 +61,7 @@ module.exports = class UserDatabase extends Database {
             })
         console.log(results);
         if (results) {
-            new User(...Object.values(results));
+            return new User(...Object.values(results));
         }
-        // if (metadata == 1) {
-        //     console.log(results);
-        // } else {
-        //     console.log("error");
-        // }
     }
 }
