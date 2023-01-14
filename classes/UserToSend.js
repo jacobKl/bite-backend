@@ -7,7 +7,7 @@ class UserToSend {
         this.email = email;
         this.money = money;
         this.avatar = avatar;
-        this.role = role === "on" ? "Trainer" : "User"
+        this.role = role 
     }
 }
 
