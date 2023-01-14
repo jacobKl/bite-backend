@@ -4,7 +4,7 @@ const { QueryTypes } = require('sequelize')
 
 async function verifyUser(req, res, next) {
     const [results, metadata] = await database.sequelize.query("SELECT * from users where token=:token", {
-        replacements: { token: req.body.token },
+        replacements: { token: req.header("Custom-Token") },
         type: QueryTypes.SELECT
     })
     if (results) {
