@@ -7,7 +7,7 @@ const path = require('path')
 const formidable = require('formidable')
 const fs = require('fs');
 var DatabaseProvider = require("../DatabaseProvider")()
-
+const verifyUser = require('../Database/TokenMiddleware')
 
 const database = new Database(DatabaseProvider)
 
@@ -46,8 +46,8 @@ router.post("/registery", async (req, res) => {
         res.end(JSON.stringify({ status: "error", error: "Użytkownik już istnieje" }));
     } else {
         const user = new User(0, email, password, name, surname, "", isTrainer, 0, nick);
-        database.registerUser(user);
-        res.end(JSON.stringify({ status: "success" }))
+        let parsedUser = await database.registerUser(user);
+        res.end(JSON.stringify(parsedUser))
     }
 })
 
@@ -74,49 +74,32 @@ router.post("/login", async (req, res) => {
     }
 
     req.session.user = user;
+    console.log(req.session.user)
     res.end(JSON.stringify(user))
 })
 
-router.get('/user', (req, res) => {
-    if (req.session.user == undefined) {
-        res.redirect("/user/login")
-    }
-    console.log(req.session.user);
-    res.end(JSON.stringify(req.session.user))
-})
-
-router.get("/logout", (req, res) => {
-    req.session.destroy()
-    res.end(JSON.stringify({ message: "Wylogowano" }))
-})
-
-router.get("/edit", (req, res) => {
-    res.sendFile(path.resolve("static/edit.html"))
-})
-
-router.post("/edit", (req, res) => {
+router.post("/edit", verifyUser, (req, res) => {
     const form = formidable({})
     form.uploadDir = __dirname + "/../static/"
     form.parse(req, async function (err, fields, files) {
-    
-    const { name, surname } = fields
-    
-    if (!req.session.user) {
-        res.send(JSON.stringify({ status: "error", error: "Użytkownik nie jest zalogowany" }))
-        return
-    }
-    
-    fs.rename(files.avatar.filepath, form.uploadDir + files.avatar.originalFilename, (err) => {})
-    database.editUser(name, surname,files.avatar.originalFilename, req.session.user.id)
 
-    res.end(JSON.stringify({
-        name: name,
-        surname: surname,
-        avatar:files.avatar.originalFilename
-    }))
+        const { name, surname } = fields
+
+        if (!req.session.user) {
+            res.send(JSON.stringify({ status: "error", error: "Użytkownik nie jest zalogowany" }))
+            return
+        }
+
+        fs.rename(files.avatar.filepath, form.uploadDir + files.avatar.originalFilename, (err) => { })
+        database.editUser(name, surname, files.avatar.originalFilename, req.session.user.id)
+
+        res.end(JSON.stringify({
+            name: name,
+            surname: surname,
+            avatar: files.avatar.originalFilename
+        }))
 
     });
 })
-
 
 module.exports = router;
