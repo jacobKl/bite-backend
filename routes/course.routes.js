@@ -4,7 +4,7 @@ const app = express()
 const Database = require("../Database/CourseDatabase")
 const path = require('path')
 const verifyUser = require("../Database/TokenMiddleware")
-const { data } = require("express-session/session/cookie");
+const {data} = require("express-session/session/cookie");
 var DatabaseProvider = require("../DatabaseProvider")()
 
 
@@ -13,7 +13,7 @@ const database = new Database(DatabaseProvider)
 const router = express.Router()
 
 router.post("/create", verifyUser, async (req, res) => {
-    const { trainer_id, name, description, image, prize, category, difficulty } = req.body
+    const {trainer_id, name, description, image, prize, category, difficulty} = req.body
     const course = new Course(trainer_id, name, description, image, prize, category, difficulty)
 
     const steps = req.body.steps
@@ -32,6 +32,25 @@ router.post("/create", verifyUser, async (req, res) => {
 
     res.send(results)
 })
+
+router.get("/take/:id", async (req, res) => {
+    const results = await database.getCoursesForUser(req.params.id)
+
+    res.send(results)
+})
+
+router.post("/take", async (req, res) => {
+    const results = await database.takeCourseForUser(req.body)
+
+    res.send(results)
+})
+
+router.post("/set-progress", async (req, res) => {
+    const results = await database.setProgress(req.body)
+
+    res.send(results)
+})
+
 router.get("/", async (req, res) => {
     const courses = await database.indexCourses(req.query.id)
 
