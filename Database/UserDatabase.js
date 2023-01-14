@@ -6,9 +6,9 @@ const { Sequelize, QueryTypes } = require('sequelize');
 const { Query } = require("pg");
 const bcrypt = require("bcrypt");
 
-module.exports = class UserDatabase extends Database {
-    constructor() {
-        super()
+module.exports = class UserDatabase {
+    constructor(database) {
+        this.database = database.provideDatabase()
     }
     /**
      * 
@@ -16,7 +16,7 @@ module.exports = class UserDatabase extends Database {
      */
     registerUser(user) {
         bcrypt.hash(user.password, 10, (err, hash) => {
-            this.sequelize.query(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money) 
+            this.database.sequelize.query(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money) 
             VALUES(:name, :surname, :password,:nick,:email,:role,'',0)`,
                 {
                     replacements: {
@@ -36,8 +36,7 @@ module.exports = class UserDatabase extends Database {
 
     loginUser(username, password) {
         return new Promise(async (resolve, reject) => {
-
-            const [results, metadata] = await this.sequelize.query("SELECT * FROM users where nick=:username",
+            const [results, metadata] = await this.database.sequelize.query("SELECT * FROM users where nick=:username",
                 {
                     replacements: {
                         username: username,
@@ -54,7 +53,7 @@ module.exports = class UserDatabase extends Database {
     }
 
     async userExist(username, email) {
-        const [results, metadata] = await this.sequelize.query("SELECT count(*) as existing FROM users WHERE nick=:nick OR email=:email",
+        const [results, metadata] = await this.database.sequelize.query("SELECT count(*) as existing FROM users WHERE nick=:nick OR email=:email",
             {
                 replacements: { nick: username, email: email },
                 type: QueryTypes.SELECT
@@ -67,7 +66,7 @@ module.exports = class UserDatabase extends Database {
     }
 
     async editUser(name, surname, avatar, id) {
-        this.sequelize.query("UPDATE users SET name=:name, surname=:surname WHERE id=:id",
+        this.database.sequelize.query("UPDATE users SET name=:name, surname=:surname WHERE id=:id",
             {
                 replacements: {
                     name: name,

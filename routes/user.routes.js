@@ -4,8 +4,10 @@ const app = express()
 const Validator = require("../classes/Validator")
 const Database = require("../Database/UserDatabase")
 const path = require('path')
+var DatabaseProvider = require("../DatabaseProvider")()
 
-const database = new Database()
+
+const database = new Database(DatabaseProvider)
 
 const router = express.Router()
 
@@ -29,7 +31,7 @@ router.post("/registery", async (req, res) => {
     } = req.body;
     const isEmail = Validator.validateEmail(email)
 
-    if (!ValidatorcheckIfNotEmpty(password, nick, name, surname, email)) {
+    if (!Validator.checkIfNotEmpty(password, nick, name, surname, email)) {
         res.end(JSON.stringify({ status: "error", error: "Któreś z pól jest puste" }))
         return
     }

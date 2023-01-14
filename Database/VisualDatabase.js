@@ -3,9 +3,9 @@ const Visual = require("../classes/Visual")
 const {QueryTypes} = require("sequelize");
 const sql = require('yesql').pg;
 
-module.exports = class VisualDatabase extends Database {
-    constructor() {
-        super()
+module.exports = class VisualDatabase {
+    constructor(database) {
+        this.database = database.provideDatabase()
     }
 
     /**

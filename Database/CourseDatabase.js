@@ -4,14 +4,14 @@ const sql = require('yesql').pg;
 const { Sequelize, QueryTypes } = require('sequelize');
 const { Query } = require("pg");
 
-module.exports = class CoursesDatabase extends Database {
-    constructor() {
-        super()
+module.exports = class CoursesDatabase {
+    constructor(database) {
+        this.database = database.provideDatabase()
     }
 
     createCourse(course) {
         return new Promise(async (resolve, reject) => {
-            const [results, metadata] = await this.sequelize.query(`INSERT INTO courses(name, description, image, author, prize, category, difficulty, step)
+            const [results, metadata] = await this.database.sequelize.query(`INSERT INTO courses(name, description, image, author, prize, category, difficulty, step)
                                                               VALUES (:name, :description, :image, :author, :prize, :category, :difficulty, :step) RETURNING *`,
                 {
                     replacements: {

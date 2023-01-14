@@ -8,9 +8,10 @@ const PORT = 3001;
 
 const user = require("./routes/user.routes")
 const course = require("./routes/course.routes")
-const visual = require("./routes/visual.routes")
+const visual = require("./routes/visual.routes");
+const Database = require("./Database/Database");
 
-//
+
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

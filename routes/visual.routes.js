@@ -5,8 +5,10 @@ const Database = require("../Database/VisualDatabase")
 const path = require('path')
 const fs = require('fs')
 const formidable = require('formidable')
+var DatabaseProvider = require("../DatabaseProvider")()
 
-const database = new Database()
+
+const database = new Database(DatabaseProvider)
 
 const router = express.Router()
 

@@ -3,8 +3,10 @@ const Course = require("../classes/Course")
 const app = express()
 const Database = require("../Database/CourseDatabase")
 const path = require('path')
+var DatabaseProvider = require("../DatabaseProvider")()
 
-const database = new Database()
+
+const database = new Database(DatabaseProvider)
 
 const router = express.Router()
 
