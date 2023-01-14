@@ -1,5 +1,5 @@
 class User{
-    constructor(password,nick,name,surname,isTrainer,email){
+    constructor(password,nick,name,surname,role,email){
         this.id = 0
         this.password = password;
         this.nick = nick;
@@ -8,7 +8,7 @@ class User{
         this.email = email;
         this.money = 0;
         this.avatar = ""
-        this.role = isTrainer === "on" ? "Trainer" : "User"
+        this.role = role === "on" ? "Trainer" : "User"
     }
 }
 

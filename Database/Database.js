@@ -1,5 +1,4 @@
 const {Client} = require("pg")
-const yesql = require('yesql').pg;
 
 class Database{
     constructor(){

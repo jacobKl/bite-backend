@@ -30,7 +30,26 @@ router.post("/registery",(req,res)=>{
     const {password,username,name,surname,isTrainer,email} = req.body;
     const user = new User(password,username,name,surname,isTrainer,email)
     database.registerUser(user)
-    res.end("dodano użytkownika")
+})
+
+router.get("/login",(req,res)=>{
+    res.send(`
+    <form action="/user/login" method="POST">
+    <input name="username"/>
+    <input name="password"/>
+    <button type="submit">Wyślij</button>
+    </form>
+    `)
+    res.end()
+})
+
+router.post("/login", async (req,res)=>{
+    const {password,username} = req.body;
+    let user = await database.getUser(username,password)
+    user = user[0]
+    const userObject = new User(user.password,user.nick,user.name,user.surname,user.role,user.email);
+    
+    res.send(JSON.stringify(user))
 })
 
 module.exports = router;
