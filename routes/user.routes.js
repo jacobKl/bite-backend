@@ -11,10 +11,10 @@ const router = express.Router()
 router.use(express.json())
 router.use(express.urlencoded())
 
-router.get("/registery",(req,res)=>{
+router.get("/registery", (req, res) => {
     res.send(`
     <form action="/user/registery" method="POST">
-    <input name="username"/>
+    <input name="nick"/>
     <input name="password"/>
     <input name="name"/>
     <input name="surname"/>
@@ -26,13 +26,20 @@ router.get("/registery",(req,res)=>{
     res.end()
 })
 
-router.post("/registery",(req,res)=>{
-    const {password,username,name,surname,isTrainer,email} = req.body;
-    const user = new User(password,username,name,surname,isTrainer,email)
-    database.registerUser(user)
+router.post("/registery", async (req, res) => {
+    const { password, nick, name, surname, isTrainer, email } = req.body;
+    const userExist = await database.userExist(nick, email);
+    console.log(userExist)
+    if (userExist) {
+        res.end("user exists");
+    } else {
+        const user = new User(0, email, password, name, surname, "", isTrainer, 0, nick);
+        database.registerUser(user);
+        res.end("ok")
+    }
 })
 
-router.get("/login",(req,res)=>{
+router.get("/login", (req, res) => {
     res.send(`
     <form action="/user/login" method="POST">
     <input name="username"/>
@@ -43,13 +50,21 @@ router.get("/login",(req,res)=>{
     res.end()
 })
 
-router.post("/login", async (req,res)=>{
-    const {password,username} = req.body;
-    let user = await database.getUser(username,password)
+router.post("/login", async (req, res) => {
+    const { password, username } = req.body;
+    let user = await database.getUser(username, password)
     user = user[0]
-    const userObject = new User(user.password,user.nick,user.name,user.surname,user.role,user.email);
-    
+    const userObject = new User(user.password, user.nick, user.name, user.surname, user.role, user.email);
+
     res.send(JSON.stringify(user))
+})
+
+router.post("/loginuser", async (req, res) => {
+    const { password, username } = req.body;
+    await database.loginUser(username, password)
+
+
+    res.send("gonwo")
 })
 
 module.exports = router;
