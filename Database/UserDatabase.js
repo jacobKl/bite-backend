@@ -3,6 +3,7 @@ const User = require("../classes/User")
 const sql = require('yesql').pg;
 const { Sequelize, QueryTypes } = require('sequelize');
 const { Query } = require("pg");
+const bcrypt = require("bcrypt");
 
 module.exports = class UserDatabase extends Database {
     constructor() {
@@ -13,39 +14,49 @@ module.exports = class UserDatabase extends Database {
      * @param {User} user 
      */
     registerUser(user) {
-        this.client.query(sql(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money) 
-        VALUES(:name, :surname, :password,:nick,:email,:role,'',0)`)(
-            {
-                name: user.name,
-                surname: user.surname,
-                password: user.password,
-                nick: user.nick,
-                email: user.email,
-                role: user.role
-            }
-        ))
+        bcrypt.hash(user.password,10,(err,hash)=>{
+            this.sequelize.query(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money) 
+            VALUES(:name, :surname, :password,:nick,:email,:role,'',0)`,
+                {
+                    replacements: {
+                        name: user.name,
+                        surname: user.surname,
+                        password: hash,
+                        nick: user.nick,
+                        email: user.email,
+                        role: user.role
+                    },
+                    type: QueryTypes.SELECT
+                }  
+            )
+        })
+        
     }
 
     getUser(username, password) {
-        return new Promise((resolve, reject) => {
-            this.client.query(sql("SELECT * FROM users where nick=:username and password=:password")(
-                {
+        return new Promise(async (resolve, reject) => {
+            
+            const [results, metadata] = await this.sequelize.query("SELECT * FROM users where nick=:username",
+            {
+                replacements: {
                     username: username,
-                    password: password
-                }
-            ), (err, res) => {
-                resolve(res.rows)
+                },
+                type: QueryTypes.SELECT
+            }           
+            )
+            bcrypt.compare(password,results.password,(err,result)=>{
+                if(results) resolve(results)
+                else resolve(false)
             })
         })
     }
 
     async userExist(username, email) {
-        const [results, metadata] = await this.sequelize.query("SELECT count(*) as existing FROM users WHERE nick=:nick AND email=:email",
+        const [results, metadata] = await this.sequelize.query("SELECT count(*) as existing FROM users WHERE nick=:nick OR email=:email",
             {
                 replacements: { nick: username, email: email },
                 type: QueryTypes.SELECT
             })
-        console.log(parseInt(results.existing));
         if (parseInt(results.existing) > 0) {
             return true;
         } else {
@@ -59,9 +70,9 @@ module.exports = class UserDatabase extends Database {
                 replacements: { nick: username, pass: password },
                 type: QueryTypes.SELECT
             })
-        console.log(results);
         if (results) {
             return new User(...Object.values(results));
         }
+        
     }
 }
