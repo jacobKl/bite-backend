@@ -15,7 +15,7 @@ module.exports = class UserDatabase {
     registerUser(user) {
         return new Promise(async (resolve, reject) => {
             bcrypt.hash(user.password, 10, async (err, hash) => {
-                const [results, metadata] = await this.sequelize.query(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money,token) 
+                const [results, metadata] = await this.database.sequelize.query(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money,token) 
             VALUES(:name, :surname, :password,:nick,:email,:role,'',0, uuid_generate_v1())`,
                     {
                         replacements: {
@@ -30,7 +30,7 @@ module.exports = class UserDatabase {
                     }
                 )
                 if (metadata == 1) {
-                    let createdUser = await this.sequelize.query("SELECT * FROM users WHERE nick=:nick LIMIT 1", {
+                    let createdUser = await this.database.sequelize.query("SELECT * FROM users WHERE nick=:nick LIMIT 1", {
                         replacements: {
                             nick: user.nick
                         },
@@ -61,7 +61,7 @@ module.exports = class UserDatabase {
                 const { password: _, ...parsedResults } = results
                 if (result) {
                     await this.rewriteToken(username)
-                    let createdUser = await this.sequelize.query("SELECT * FROM users WHERE nick=:nick LIMIT 1", {
+                    let createdUser = await this.database.sequelize.query("SELECT * FROM users WHERE nick=:nick LIMIT 1", {
                         replacements: {
                             nick: username
                         },
@@ -77,7 +77,7 @@ module.exports = class UserDatabase {
     }
 
     async rewriteToken(username) {
-        const [results, metadata] = await this.sequelize.query("UPDATE users SET token=uuid_generate_v1() WHERE nick=:username",
+        const [results, metadata] = await this.database.sequelize.query("UPDATE users SET token=uuid_generate_v1() WHERE nick=:username",
             {
                 replacements: {
                     username: username,
