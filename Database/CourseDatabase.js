@@ -9,10 +9,14 @@ module.exports = class CoursesDatabase {
         this.database = database.provideDatabase()
     }
 
-    indexCourses() {
+    indexCourses(trainerId) {
+        let condition = ''
+        if(trainerId) condition= `WHERE trainer_id=${trainerId}`
+
+        console.log(condition)
         return new Promise(async (resolve, reject) => {
             const [results, metadata] = await this.database.sequelize.query(`SELECT *
-                                                                             FROM courses`)
+                                                                             FROM courses ${condition}`)
 
             resolve(results)
         })
