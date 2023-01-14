@@ -11,8 +11,8 @@ module.exports = class CoursesDatabase {
 
     createCourse(course) {
         return new Promise(async (resolve, reject) => {
-            const [results, metadata] = await this.database.sequelize.query(`INSERT INTO courses(name, description, image, author, prize, category, difficulty, step)
-                                                              VALUES (:name, :description, :image, :author, :prize, :category, :difficulty, :step) RETURNING *`,
+            const [results, metadata] = await this.database.sequelize.query(`INSERT INTO courses(trainer_id, name, description, image, prize, category, difficulty)
+                                                              VALUES (:trainer_id, :name, :description, :image, :prize, :category, :difficulty) RETURNING *`,
                 {
                     replacements: {
                         trainer_id: course.trainer_id,
@@ -21,8 +21,29 @@ module.exports = class CoursesDatabase {
                         image: course.image,
                         prize: course.prize,
                         category: course.category,
-                        difficulty: course.difficulty,
-                        step: course.step
+                        difficulty: course.difficulty
+                    },
+                    type: QueryTypes.SELECT
+                }
+            )
+
+            resolve(results)
+        })
+    }
+
+    createCoursePart(coursePart) {
+        return new Promise(async (resolve, reject) => {
+            const [results, metadata] = await this.database.sequelize.query(`INSERT INTO course_parts(course_id, title, informations, video, questions, attachemnts, step)
+                                                              VALUES (:course_id, :title, :informations, :video, :questions, :attachments, :step) RETURNING *`,
+                {
+                    replacements: {
+                        course_id: coursePart.course_id,
+                        title: coursePart.title,
+                        informations: coursePart.informations,
+                        video: coursePart.video,
+                        questions: coursePart.questions,
+                        attachments: coursePart.attachments,
+                        step: coursePart.step
                     },
                     type: QueryTypes.SELECT
                 }

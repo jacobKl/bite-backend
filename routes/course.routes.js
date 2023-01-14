@@ -3,6 +3,7 @@ const Course = require("../classes/Course")
 const app = express()
 const Database = require("../Database/CourseDatabase")
 const path = require('path')
+const {data} = require("express-session/session/cookie");
 var DatabaseProvider = require("../DatabaseProvider")()
 
 
@@ -15,8 +16,18 @@ router.post("/create", async (req, res) => {
     const course = new Course(trainer_id, name, description, image, prize, category, difficulty)
 
     const steps = req.body.steps
-    console.log(steps)
     const results = await database.createCourse(course)
+
+    let tab = []
+    steps.forEach(step => {
+        step['course_id'] = results['id']
+        step['questions'] = JSON.stringify(step['questions'])
+
+        database.createCoursePart(step)
+        tab.push(step)
+    })
+
+    console.log(tab)
 
     res.send(results)
 })
