@@ -33,7 +33,7 @@ router.post("/create", async (req, res) => {
 })
 
 router.get("/", async (req, res) => {
-    const courses = await database.indexCourses()
+    const courses = await database.indexCourses(req.query.id)
 
     for(let i in courses) {
         courses[i]['steps'] = await database.getCourseSteps(courses[i]['id'])
