@@ -7,6 +7,8 @@ const app = express();
 const PORT = 3000;
 
 const user = require("./routes/user.routes")
+const course = require("./routes/course.routes")
+const visual = require("./routes/visual.routes")
 
 //
 app.use(cors())
@@ -16,7 +18,9 @@ app.use(session({ secret: 'fjsifuihsihfdsjioje' }));
 app.use(cookieParser());
 
 app.use("/user", user)
-// 
+app.use("/course", course)
+app.use("/visual", visual)
+//
 
 app.get("/", (request, response) => {
     response.send("Hi there");
