@@ -8,7 +8,8 @@ router.use(express.json())
 router.use(express.urlencoded())
 
 router.post('/', (req,res) => {
-    console.log(req.body);
+    const { name, description, prize, steps } = req.body;
+    const course = new Course(name, description, image, author, prize, category, difficulty);
 });
 
 module.exports = router;
