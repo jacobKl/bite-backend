@@ -11,14 +11,14 @@ module.exports = class CoursesDatabase extends Database {
 
     createCourse(course) {
         return new Promise(async (resolve, reject) => {
-            const [results, metadata] = await this.sequelize.query(`INSERT INTO courses(name, description, image, author, prize, category, difficulty, step)
-                                                              VALUES (:name, :description, :image, :author, :prize, :category, :difficulty, :step) RETURNING *`,
+            const [results, metadata] = await this.sequelize.query(`INSERT INTO courses(trainer_id, name, description, image, prize, category, difficulty)
+                                                              VALUES (:trainer_id, :name, :description, :image, :prize, :category, :difficulty) RETURNING *`,
                 {
                     replacements: {
+                        trainer_id: course.trainer_id,
                         name: course.name,
                         description: course.description,
                         image: course.image,
-                        author: course.author,
                         prize: course.prize,
                         category: course.category,
                         difficulty: course.difficulty,

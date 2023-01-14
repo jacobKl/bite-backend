@@ -9,12 +9,14 @@ const database = new Database()
 const router = express.Router()
 
 router.post("/create", async (req, res) => {
-    const {name, description, image, author, prize, category, difficulty, step} = req.body
-    const course = new Course(name, description, image, author, prize, category, difficulty, step)
+    const {trainer_id, name, description, image, prize, category, difficulty} = req.body
+    const course = new Course(trainer_id, name, description, image, prize, category, difficulty)
 
+    const steps = req.body.steps
+    console.log(steps)
     const results = await database.createCourse(course)
 
-    res.end(results)
+    res.send(results)
 })
 
 module.exports = router;
