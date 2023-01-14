@@ -4,6 +4,8 @@ const app = express()
 const Validator = require("../classes/Validator")
 const Database = require("../Database/UserDatabase")
 const path = require('path')
+const formidable = require('formidable')
+const fs = require('fs');
 var DatabaseProvider = require("../DatabaseProvider")()
 
 
@@ -19,8 +21,6 @@ router.get("/registery", (req, res) => {
 })
 
 router.post("/registery", async (req, res) => {
-    //Walidacja wszystkich pól
-    //hashowanie haseł
     const {
         password,
         nick,
@@ -95,17 +95,27 @@ router.get("/edit", (req, res) => {
 })
 
 router.post("/edit", (req, res) => {
-    const { name, surname, avatar } = req.body
+    const form = formidable({})
+    form.uploadDir = __dirname + "/../static/"
+    form.parse(req, async function (err, fields, files) {
+    
+    const { name, surname } = fields
+    
     if (!req.session.user) {
         res.send(JSON.stringify({ status: "error", error: "Użytkownik nie jest zalogowany" }))
         return
     }
-    database.editUser(name, surname, "", req.session.user.id)
+    
+    fs.rename(files.avatar.filepath, form.uploadDir + files.avatar.originalFilename, (err) => {})
+    database.editUser(name, surname,files.avatar.originalFilename, req.session.user.id)
+
     res.end(JSON.stringify({
         name: name,
         surname: surname,
-        avatar: avatar
+        avatar:files.avatar.originalFilename
     }))
+
+    });
 })
 
 

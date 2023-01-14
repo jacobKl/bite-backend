@@ -66,10 +66,11 @@ module.exports = class UserDatabase {
     }
 
     async editUser(name, surname, avatar, id) {
-        this.database.sequelize.query("UPDATE users SET name=:name, surname=:surname WHERE id=:id",
+        this.database.sequelize.query("UPDATE users SET name=:name, surname=:surname, avatar=:avatar WHERE id=:id",
             {
                 replacements: {
                     name: name,
+                    avatar:avatar,
                     surname: surname,
                     id: id
                 },
