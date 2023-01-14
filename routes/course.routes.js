@@ -27,9 +27,19 @@ router.post("/create", async (req, res) => {
         tab.push(step)
     })
 
-    console.log(tab)
+    results['steps'] = tab
 
     res.send(results)
+})
+
+router.get("/", async (req, res) => {
+    const courses = await database.indexCourses()
+
+    for(let i in courses) {
+        courses[i]['steps'] = await database.getCourseSteps(courses[i]['id'])
+    }
+
+    res.send(courses)
 })
 
 module.exports = router;
