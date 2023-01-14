@@ -3,6 +3,7 @@ const express = require("express")
 const User = require("../classes/User")
 const app = express()
 const Database = require("../Database/UserDatabase")
+const path = require('path')
 
 const database = new Database()
 
@@ -12,18 +13,7 @@ router.use(express.json())
 router.use(express.urlencoded())
 
 router.get("/registery", (req, res) => {
-    res.send(`
-    <form action="/user/registery" method="POST">
-    <input name="nick"/>
-    <input name="password"/>
-    <input name="name"/>
-    <input name="surname"/>
-    <input name="email"/>
-    <input name="isTrainer" type="checkbox"/>
-    <button type="submit">Wyślij</button>
-    </form>
-    `)
-    res.end()
+    res.sendFile(path.resolve("static/register.html"))
 })
 
 router.post("/registery", async (req, res) => {
@@ -53,14 +43,7 @@ router.post("/registery", async (req, res) => {
 })
 
 router.get("/login", (req, res) => {
-    res.send(`
-    <form action="/user/login" method="POST">
-    <input name="username"/>
-    <input name="password"/>
-    <button type="submit">Wyślij</button>
-    </form>
-    `)
-    res.end()
+    res.sendFile(path.resolve("static/login.html"))
 })
 
 router.post("/login", async (req, res) => {
@@ -79,17 +62,24 @@ router.post("/login", async (req, res) => {
     }
 
     const userObject = new User(user.id,user.email,user.password, user.name, user.surname, user.avatar,user.role, user.money, user.nick);
-
-    res.send(JSON.stringify(userObject))
+    
+    req.session.user = user;
+    res.end("ok")
 })
 
-router.post("/loginuser", async (req, res) => {
-    const { password, username } = req.body;
-    await database.loginUser(username, password)
-
-
-    res.send("gonwo")
+router.get('/user', (req, res) => {
+    if (req.session.user == undefined) {
+        res.redirect("/user/login")
+    }
+    console.log(req.session.user);
+    res.end(JSON.stringify(req.session.user))
 })
+
+function validateEmail(email){
+if(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) return true
+else return false
+}
+
 
 function checkIfNotEmpty(...items){
     let isNotEmpty = true

@@ -15,33 +15,38 @@ module.exports = class UserDatabase extends Database {
      */
     registerUser(user) {
         bcrypt.hash(user.password,10,(err,hash)=>{
-            this.client.query(sql(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money) 
-            VALUES(:name, :surname, :password,:nick,:email,:role,'',0)`)(
+            this.sequelize.query(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money) 
+            VALUES(:name, :surname, :password,:nick,:email,:role,'',0)`,
                 {
-                    name: user.name,
-                    surname: user.surname,
-                    password: hash,
-                    nick: user.nick,
-                    email: user.email,
-                    role: user.role
-                }
-            ))
+                    replacements: {
+                        name: user.name,
+                        surname: user.surname,
+                        password: hash,
+                        nick: user.nick,
+                        email: user.email,
+                        role: user.role
+                    },
+                    type: QueryTypes.SELECT
+                }  
+            )
         })
         
     }
 
     getUser(username, password) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             
-            this.client.query(sql("SELECT * FROM users where nick=:username")(
-                {
+            const [results, metadata] = await this.sequelize.query("SELECT * FROM users where nick=:username",
+            {
+                replacements: {
                     username: username,
-                }
-            ), (err, res) => {
-                bcrypt.compare(password,res.rows[0].password,(err,result)=>{
-                    if(result && res.rows.length > 0) resolve(res.rows[0])
-                    else resolve(false)
-                })
+                },
+                type: QueryTypes.SELECT
+            }           
+            )
+            bcrypt.compare(password,results.password,(err,result)=>{
+                if(results) resolve(results)
+                else resolve(false)
             })
         })
     }
@@ -66,7 +71,7 @@ module.exports = class UserDatabase extends Database {
                 type: QueryTypes.SELECT
             })
         if (results) {
-            new User(...Object.values(results));
+            return new User(...Object.values(results));
         }
         
     }
