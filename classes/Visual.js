@@ -1,8 +1,8 @@
 class Visual {
-    constructor(name, type, data) {
+    constructor(name, type, path) {
         this.name = name
         this.type = type
-        this.data = data
+        this.path = path
     }
 }
 
