@@ -15,12 +15,14 @@ module.exports = class CoursesDatabase extends Database {
                                                               VALUES (:name, :description, :image, :author, :prize, :category, :difficulty, :step) RETURNING *`,
                 {
                     replacements: {
-                        name,
-                        description,
-                        image,
-                        author,
-                        prize,
-                        category, difficulty, step
+                        name: course.name,
+                        description: course.description,
+                        image: course.image,
+                        author: course.author,
+                        prize: course.prize,
+                        category: course.category,
+                        difficulty: course.difficulty,
+                        step: course.step
                     },
                     type: QueryTypes.SELECT
                 }
