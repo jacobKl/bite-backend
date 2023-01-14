@@ -14,7 +14,7 @@ module.exports = class VisualDatabase {
      */
     createVisual(visual) {
         return new Promise(async (resolve, reject) => {
-            const [results, metadata] = await this.sequelize.query(`INSERT INTO visuals(name, type, path)
+            const [results, metadata] = await this.database.sequelize.query(`INSERT INTO visuals(name, type, path)
                                                               VALUES (:name, :type, :path) RETURNING *`,
                 {
                     replacements: {
