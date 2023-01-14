@@ -17,6 +17,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(session({ secret: 'fjsifuihsihfdsjioje' }));
 app.use(cookieParser());
+app.use(express.static('static'))
 
 app.use("/user", user)
 app.use("/course", course)
@@ -28,5 +29,5 @@ app.get("/", (request, response) => {
 });
 
 app.listen(PORT, () => {
-    console.log("Listen on the port 3000...");
+    console.log("Listen on the port 3001...");
 });

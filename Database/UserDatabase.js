@@ -1,9 +1,7 @@
 const Database = require("./Database");
 const User = require("../classes/User")
 const UserToSend = require("../classes/UserToSend")
-const sql = require('yesql').pg;
 const { Sequelize, QueryTypes } = require('sequelize');
-const { Query } = require("pg");
 const bcrypt = require("bcrypt");
 
 module.exports = class UserDatabase {
@@ -15,22 +13,37 @@ module.exports = class UserDatabase {
      * @param {User} user 
      */
     registerUser(user) {
-        bcrypt.hash(user.password, 10, (err, hash) => {
-            this.database.sequelize.query(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money) 
-            VALUES(:name, :surname, :password,:nick,:email,:role,'',0)`,
-                {
-                    replacements: {
-                        name: user.name,
-                        surname: user.surname,
-                        password: hash,
-                        nick: user.nick,
-                        email: user.email,
-                        role: user.role
-                    },
-                    type: QueryTypes.INSERT
+        return new Promise(async (resolve, reject) => {
+            bcrypt.hash(user.password, 10, async (err, hash) => {
+                const [results, metadata] = await this.database.sequelize.query(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money,token) 
+            VALUES(:name, :surname, :password,:nick,:email,:role,'',0, uuid_generate_v1())`,
+                    {
+                        replacements: {
+                            name: user.name,
+                            surname: user.surname,
+                            password: hash,
+                            nick: user.nick,
+                            email: user.email,
+                            role: user.role
+                        },
+                        type: QueryTypes.INSERT
+                    }
+                )
+                if (metadata == 1) {
+                    let createdUser = await this.database.sequelize.query("SELECT * FROM users WHERE nick=:nick LIMIT 1", {
+                        replacements: {
+                            nick: user.nick
+                        },
+                        type: QueryTypes.SELECT
+                    })
+                    const { password: _, ...parsedUser } = createdUser[0]
+                    resolve(new UserToSend(...Object.values(parsedUser)))
+                } else {
+                    resolve(false)
                 }
-            )
+            })
         })
+
 
     }
 
@@ -44,12 +57,34 @@ module.exports = class UserDatabase {
                     type: QueryTypes.SELECT
                 }
             )
-            bcrypt.compare(password, results.password, (err, result) => {
+            bcrypt.compare(password, results.password, async (err, result) => {
                 const { password: _, ...parsedResults } = results
-                if (result) resolve(new UserToSend(...Object.values(parsedResults)))
+                if (result) {
+                    await this.rewriteToken(username)
+                    let createdUser = await this.database.sequelize.query("SELECT * FROM users WHERE nick=:nick LIMIT 1", {
+                        replacements: {
+                            nick: username
+                        },
+                        type: QueryTypes.SELECT
+                    })
+                    console.log(createdUser)
+                    const { password: _, ...parsedUser } = createdUser[0]
+                    resolve(new UserToSend(...Object.values(parsedUser)))
+                }
                 else resolve(false)
             })
         })
+    }
+
+    async rewriteToken(username) {
+        const [results, metadata] = await this.database.sequelize.query("UPDATE users SET token=uuid_generate_v1() WHERE nick=:username",
+            {
+                replacements: {
+                    username: username,
+                },
+                type: QueryTypes.UPDATE
+            }
+        )
     }
 
     async userExist(username, email) {
@@ -70,7 +105,7 @@ module.exports = class UserDatabase {
             {
                 replacements: {
                     name: name,
-                    avatar:avatar,
+                    avatar: avatar,
                     surname: surname,
                     id: id
                 },
