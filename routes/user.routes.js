@@ -71,9 +71,9 @@ router.post("/login", async (req, res) => {
     }
 
     const userObject = new User(user.id, user.email, user.password, user.name, user.surname, user.avatar, user.role, user.money, user.nick);
-
-    req.session.user = user;
-    res.end("ok")
+    const {password:_,...userToSendToClient} = userObject
+    req.session.user = userToSendToClient;
+    res.end(JSON.stringify(userToSendToClient))
 })
 
 router.get('/user', (req, res) => {
@@ -82,6 +82,29 @@ router.get('/user', (req, res) => {
     }
     console.log(req.session.user);
     res.end(JSON.stringify(req.session.user))
+})
+
+router.get("/logout",(req,res)=>{
+    req.session.destroy()
+    res.end(JSON.stringify({message:"Wylogowano"}))
+})
+
+router.get("/edit",(req,res)=>{
+    res.sendFile(path.resolve("static/edit.html"))
+})
+
+router.post("/edit",(req,res)=>{
+    const {name,surname,avatar} = req.body
+    if(!req.session.user) {
+        res.send("Użytkownik nie zalogowany")
+        return
+    }
+    database.editUser(name,surname,"",req.session.user.id)
+    res.end(JSON.stringify({
+        name:name,
+        surname:surname,
+        avatar:avatar
+    }))
 })
 
 function validateEmail(email) {
