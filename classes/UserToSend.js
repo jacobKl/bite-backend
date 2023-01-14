@@ -1,5 +1,5 @@
 class UserToSend {
-    constructor(id, email, name, surname, avatar, role, money, nick) {
+    constructor(id, email, name, surname, avatar, role, money, nick, token) {
         this.id = id
         this.nick = nick;
         this.name = name;
@@ -8,6 +8,7 @@ class UserToSend {
         this.money = money;
         this.avatar = avatar;
         this.role = role === "on" ? "Trainer" : "User"
+        this.token = token
     }
 }
 
