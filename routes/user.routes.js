@@ -1,6 +1,7 @@
 const express = require("express")
 const User = require("../classes/User")
 const app = express()
+const Validator = require("../classes/Validator")
 const Database = require("../Database/UserDatabase")
 const path = require('path')
 
@@ -26,25 +27,25 @@ router.post("/registery", async (req, res) => {
         isTrainer,
         email
     } = req.body;
-    const isEmail = validateEmail(email)
+    const isEmail = Validator.validateEmail(email)
 
-    if (!checkIfNotEmpty(password, nick, name, surname, email)) {
-        res.end("Któreś z pól jest puste")
+    if (!ValidatorcheckIfNotEmpty(password, nick, name, surname, email)) {
+        res.end(JSON.stringify({ status: "error", error: "Któreś z pól jest puste" }))
         return
     }
 
     if (!isEmail) {
-        res.end("Email nie jest poprawny")
+        res.end(JSON.stringify({ status: "error", error: "Email nie jest poprawny" }))
         return
     }
 
     const userExist = await database.userExist(nick, email);
     if (userExist) {
-        res.end("user exists");
+        res.end(JSON.stringify({ status: "error", error: "Użytkownik już istnieje" }));
     } else {
         const user = new User(0, email, password, name, surname, "", isTrainer, 0, nick);
         database.registerUser(user);
-        res.end("ok")
+        res.end(JSON.stringify({ status: "success" }))
     }
 })
 
@@ -58,22 +59,20 @@ router.post("/login", async (req, res) => {
         username
     } = req.body;
 
-    if (!checkIfNotEmpty(password, username)) {
-        res.end("Któreś z pól jest puste")
+    if (!Validator.checkIfNotEmpty(password, username)) {
+        res.end(JSON.stringify({ status: "error", error: "Któreś z pól jest puste" }))
         return
     }
 
-    let user = await database.getUser(username, password)
+    let user = await database.loginUser(username, password)
 
     if (!user) {
-        res.end("Nie poprawne hasło lub nazwa użytkownika")
+        res.end(JSON.stringify({ status: "error", error: "Nie poprawne hasło lub nazwa użytkownika" }))
         return
     }
 
-    const userObject = new User(user.id, user.email, user.password, user.name, user.surname, user.avatar, user.role, user.money, user.nick);
-    const {password:_,...userToSendToClient} = userObject
-    req.session.user = userToSendToClient;
-    res.end(JSON.stringify(userToSendToClient))
+    req.session.user = user;
+    res.end(JSON.stringify(user))
 })
 
 router.get('/user', (req, res) => {
@@ -84,44 +83,28 @@ router.get('/user', (req, res) => {
     res.end(JSON.stringify(req.session.user))
 })
 
-router.get("/logout",(req,res)=>{
+router.get("/logout", (req, res) => {
     req.session.destroy()
-    res.end(JSON.stringify({message:"Wylogowano"}))
+    res.end(JSON.stringify({ message: "Wylogowano" }))
 })
 
-router.get("/edit",(req,res)=>{
+router.get("/edit", (req, res) => {
     res.sendFile(path.resolve("static/edit.html"))
 })
 
-router.post("/edit",(req,res)=>{
-    const {name,surname,avatar} = req.body
-    if(!req.session.user) {
-        res.send("Użytkownik nie zalogowany")
+router.post("/edit", (req, res) => {
+    const { name, surname, avatar } = req.body
+    if (!req.session.user) {
+        res.send(JSON.stringify({ status: "error", error: "Użytkownik nie jest zalogowany" }))
         return
     }
-    database.editUser(name,surname,"",req.session.user.id)
+    database.editUser(name, surname, "", req.session.user.id)
     res.end(JSON.stringify({
-        name:name,
-        surname:surname,
-        avatar:avatar
+        name: name,
+        surname: surname,
+        avatar: avatar
     }))
 })
-
-function validateEmail(email) {
-    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) return true
-    else return false
-}
-
-
-function checkIfNotEmpty(...items) {
-    let isNotEmpty = true
-    items.forEach(item => {
-        if (item.length === 0) {
-            isNotEmpty = false
-        }
-    })
-    return isNotEmpty
-}
 
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const Database = require("./Database");
 const User = require("../classes/User")
+const UserToSend = require("../classes/UserToSend")
 const sql = require('yesql').pg;
 const { Sequelize, QueryTypes } = require('sequelize');
 const { Query } = require("pg");
@@ -14,7 +15,7 @@ module.exports = class UserDatabase extends Database {
      * @param {User} user 
      */
     registerUser(user) {
-        bcrypt.hash(user.password,10,(err,hash)=>{
+        bcrypt.hash(user.password, 10, (err, hash) => {
             this.sequelize.query(`INSERT INTO users(name,surname,password,nick,email,role,avatar,money) 
             VALUES(:name, :surname, :password,:nick,:email,:role,'',0)`,
                 {
@@ -27,25 +28,26 @@ module.exports = class UserDatabase extends Database {
                         role: user.role
                     },
                     type: QueryTypes.INSERT
-                }  
+                }
             )
         })
-        
+
     }
 
-    getUser(username, password) {
+    loginUser(username, password) {
         return new Promise(async (resolve, reject) => {
-            
+
             const [results, metadata] = await this.sequelize.query("SELECT * FROM users where nick=:username",
-            {
-                replacements: {
-                    username: username,
-                },
-                type: QueryTypes.SELECT
-            }           
+                {
+                    replacements: {
+                        username: username,
+                    },
+                    type: QueryTypes.SELECT
+                }
             )
-            bcrypt.compare(password,results.password,(err,result)=>{
-                if(results) resolve(results)
+            bcrypt.compare(password, results.password, (err, result) => {
+                const { password: _, ...parsedResults } = results
+                if (result) resolve(new UserToSend(...Object.values(parsedResults)))
                 else resolve(false)
             })
         })
@@ -64,27 +66,15 @@ module.exports = class UserDatabase extends Database {
         }
     }
 
-    async loginUser(username, password) {
-        const [results, metadata] = await this.sequelize.query("SELECT * FROM users WHERE nick=:nick AND password=:pass LIMIT 1",
-            {
-                replacements: { nick: username, pass: password },
-                type: QueryTypes.SELECT
-            })
-        if (results) {
-            return new User(...Object.values(results));
-        }
-        
-    }
-
-    async editUser(name,surname,avatar,id){
+    async editUser(name, surname, avatar, id) {
         this.sequelize.query("UPDATE users SET name=:name, surname=:surname WHERE id=:id",
             {
-                replacements:{
-                    name:name,
-                    surname:surname,
-                    id:id
+                replacements: {
+                    name: name,
+                    surname: surname,
+                    id: id
                 },
-                type:QueryTypes.UPDATE
+                type: QueryTypes.UPDATE
             }
         )
     }
