@@ -6,7 +6,8 @@ const app = express();
 
 const PORT = 3001;
 
-const user = require("./routes/user.routes")
+const user = require("./routes/user.routes");
+const courses = require("./routes/courses.routes");
 
 //
 app.use(cors())
@@ -17,6 +18,8 @@ app.use(cookieParser());
 
 app.use("/user", user)
 // 
+
+app.use("/courses", courses)
 
 app.get("/", (request, response) => {
     response.send("Hi there");
