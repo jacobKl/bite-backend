@@ -24,7 +24,7 @@ router.post("/save", verifyUser, (req, res) => {
         fs.rename(files.file.filepath, form.uploadDir + files.file.originalFilename, (err) => { })
 
         res.send({
-            name: files.file.originalFilename
+            location: files.file.originalFilename
         })
     });
 })
