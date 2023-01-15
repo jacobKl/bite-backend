@@ -16,7 +16,7 @@ const router = express.Router()
 router.use(express.json())
 router.use(express.urlencoded())
 
-router.post("/save", verifyUser, (req, res) => {
+router.post("/save", (req, res) => {
     const form = formidable({})
     form.uploadDir = __dirname + "/../static/"
     form.parse(req, async function (err, fields, files) {

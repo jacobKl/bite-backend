@@ -22,7 +22,7 @@ router.post("/create", verifyUser, async (req, res) => {
     let tab = []
     steps.forEach(step => {
         step['course_id'] = results['id']
-        step['questions'] = JSON.stringify(step['questions'])
+        step['question'] = JSON.stringify(step['question'])
 
         database.createCoursePart(step)
         tab.push(step)

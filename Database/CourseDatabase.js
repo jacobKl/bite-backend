@@ -68,17 +68,16 @@ module.exports = class CoursesDatabase {
 
     createCoursePart(coursePart) {
         return new Promise(async (resolve, reject) => {
-            const [results, metadata] = await this.database.sequelize.query(`INSERT INTO course_parts(course_id, title, informations, video, questions, attachemnts, step)
+            const [results, metadata] = await this.database.sequelize.query(`INSERT INTO course_parts(course_id, title, informations, questions)
                                                                              VALUES (:course_id, :title, :informations,
-                                                                                     :video, :questions, :attachments,
-                                                                                     :step) RETURNING *`,
+                                                                                     :questions
+                                                                                     ) RETURNING *`,
                 {
                     replacements: {
                         course_id: coursePart.course_id,
                         title: coursePart.title,
                         informations: coursePart.informations,
-                        video: coursePart.video,
-                        questions: coursePart.questions,
+                        questions: coursePart.question,
                         attachments: coursePart.attachments,
                         step: coursePart.step
                     },
