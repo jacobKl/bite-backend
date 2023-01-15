@@ -11,7 +11,7 @@ module.exports = class CoursesDatabase {
 
     indexCourses(trainerId) {
         let condition = ''
-        if(trainerId) condition= `WHERE trainer_id=${trainerId}`
+        if (trainerId) condition = `WHERE trainer_id=${trainerId}`
 
         console.log(condition)
         return new Promise(async (resolve, reject) => {
@@ -80,6 +80,49 @@ module.exports = class CoursesDatabase {
                         questions: coursePart.question,
                         attachments: coursePart.attachments,
                         step: coursePart.step
+                    },
+                    type: QueryTypes.SELECT
+                }
+            )
+
+            resolve(results)
+        })
+    }
+
+    takeCourseForUser(data) {
+        return new Promise(async (resolve, reject) => {
+            const [results, metadata] = await this.database.sequelize.query(`INSERT INTO courses_in_progress(course_id, user_id, progress)
+                                                                             VALUES (:course_id, :user_id, 1) RETURNING *`,
+                {
+                    replacements: {
+                        course_id: data.course_id,
+                        user_id: data.user_id,
+                    },
+                    type: QueryTypes.SELECT
+                }
+            )
+
+            resolve(results)
+        })
+    }
+
+    getCoursesForUser(id) {
+        return new Promise(async (resolve, reject) => {
+            const [results, metadata] = await this.database.sequelize.query(`SELECT *
+                                                                             FROM courses_in_progress 
+                                                                             WHERE user_id = ${id}`)
+
+            resolve(results)
+        })
+    }
+
+    setProgress(data) {
+        return new Promise(async (resolve, reject) => {
+            const [results, metadata] = await this.database.sequelize.query(`UPDATE courses_in_progress SET progress = progress+1 WHERE course_id=:course_id AND user_id=:user_id RETURNING *`,
+                {
+                    replacements: {
+                        course_id: data.course_id,
+                        user_id: data.user_id,
                     },
                     type: QueryTypes.SELECT
                 }
