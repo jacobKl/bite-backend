@@ -13,8 +13,8 @@ const database = new Database(DatabaseProvider)
 const router = express.Router()
 
 router.post("/create", verifyUser, async (req, res) => {
-    const {trainer_id, name, description, image, prize, category, difficulty} = req.body
-    const course = new Course(trainer_id, name, description, image, prize, category, difficulty)
+    const {trainer_id, name, description, image, prize, category, difficulty, attachments} = req.body
+    const course = new Course(trainer_id, name, description, image, prize, category, difficulty, attachments)
 
     const steps = req.body.steps
     const results = await database.createCourse(course)
