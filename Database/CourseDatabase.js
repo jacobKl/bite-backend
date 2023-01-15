@@ -139,4 +139,12 @@ module.exports = class CoursesDatabase {
             resolve(results)
         })
     }
+
+    setUserMoney(id, money) {
+        return new Promise(async (resolve, reject) => {
+            const [results, metadata] = await this.database.sequelize.query(`UPDATE users SET money = money + ${money} WHERE id=${id}`)
+
+            resolve(results)
+        })
+    }
 }

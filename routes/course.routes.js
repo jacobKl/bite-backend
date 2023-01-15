@@ -12,6 +12,15 @@ const database = new Database(DatabaseProvider)
 
 const router = express.Router()
 
+router.post("/set-prize/:id", async (req, res) => {
+
+    results = await database.setUserMoney(req.params.id, req.body.prize)
+
+    res.send({
+        success: true
+    })
+})
+
 router.post("/create", verifyUser, async (req, res) => {
     const {trainer_id, name, description, image, prize, category, difficulty, attachments} = req.body
     const course = new Course(trainer_id, name, description, image, prize, category, difficulty, attachments)
