@@ -34,6 +34,7 @@ router.post("/create", verifyUser, async (req, res) => {
 })
 
 router.get("/take/:id", async (req, res) => {
+    console.log('chuj mi na imie')
     const results = await database.getCoursesForUser(req.params.id)
 
     res.send(results)

@@ -117,8 +117,8 @@ module.exports = class CoursesDatabase {
     getCoursesForUser(id) {
         return new Promise(async (resolve, reject) => {
             const [results, metadata] = await this.database.sequelize.query(`SELECT *
-                                                                             FROM courses_in_progress 
-                                                                             WHERE user_id = ${id}`)
+                                                                             FROM courses_in_progress, courses 
+                                                                             WHERE user_id = ${id} AND courses_in_progress.course_id=courses.id`)
 
             resolve(results)
         })
