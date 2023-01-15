@@ -90,6 +90,14 @@ module.exports = class CoursesDatabase {
         })
     }
 
+    countCourse(data) {
+        return new Promise(async (resolve, reject) => {
+            const [results, metadata] = await this.database.sequelize.query(`SELECT count(*) FROM courses_in_progress WHERE course_id=${data.course_id} AND user_id=${data.user_id} `)
+
+            resolve(results)
+        })
+    }
+
     takeCourseForUser(data) {
         return new Promise(async (resolve, reject) => {
             const [results, metadata] = await this.database.sequelize.query(`INSERT INTO courses_in_progress(course_id, user_id, progress)

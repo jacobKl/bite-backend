@@ -40,9 +40,20 @@ router.get("/take/:id", async (req, res) => {
 })
 
 router.post("/take", async (req, res) => {
-    const results = await database.takeCourseForUser(req.body)
+    const checkIfExist = await database.countCourse(req.body)
+    if(checkIfExist[0]['count'] == 0) {
 
-    res.send(results)
+        const results = await database.takeCourseForUser(req.body)
+
+        res.send({
+            success: true,
+            data: results
+        })
+    } else {
+        res.send({
+            success: false
+        })
+    }
 })
 
 router.post("/set-progress", async (req, res) => {
