@@ -1,5 +1,5 @@
 class Course {
-    constructor(trainer_id, name, description, image = '', prize = '', category = '', difficulty = '', attachments = '') {
+    constructor(trainer_id, name, description, image = '', prize = '', category = '', difficulty = '', attachments = '[]') {
         this.trainer_id = trainer_id
         this.name = name;
         this.description = description;

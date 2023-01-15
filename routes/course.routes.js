@@ -85,8 +85,10 @@ router.get("/not/:userId", async (req, res) => {
 
     for(let i in courses) {
         for(let k in userCourses) {
-            if(courses[i].id == userCourses[k].course_id) {
-                courses.splice(i, 1)
+            if(courses[i] && userCourses[k]) {
+                if (courses[i].id == userCourses[k].course_id) {
+                    courses.splice(i, 1)
+                }
             }
         }
     }
