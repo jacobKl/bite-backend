@@ -37,9 +37,9 @@ module.exports = class UserDatabase {
                         type: QueryTypes.SELECT
                     })
                     const { password: _, ...parsedUser } = createdUser[0]
-                    resolve(new UserToSend(...Object.values(parsedUser)))
+                    resolve({ status: "success", user: new UserToSend(...Object.values(parsedUser)) })
                 } else {
-                    resolve(false)
+                    resolve({ status: "error", error: "Registeration error" })
                 }
             })
         })
@@ -69,9 +69,9 @@ module.exports = class UserDatabase {
                     })
                     console.log(createdUser)
                     const { password: _, ...parsedUser } = createdUser[0]
-                    resolve(new UserToSend(...Object.values(parsedUser)))
+                    resolve({ status: "success", user: new UserToSend(...Object.values(parsedUser)) })
                 }
-                else resolve(false)
+                else resolve({ status: "error", error: "Invalid username or password" })
             })
         })
     }
@@ -112,5 +112,18 @@ module.exports = class UserDatabase {
                 type: QueryTypes.UPDATE
             }
         )
+    }
+
+    async getUser(token) {
+        const [results, metadata] = await this.database.sequelize.query("SELECT * from users where token=:token", {
+            replacements: { token: token },
+            type: QueryTypes.SELECT
+        })
+        if (results) {
+            const { password: _, ...parsedResults } = results
+            return ({ status: "success", user: new UserToSend(...Object.values(parsedResults)) })
+        } else {
+            return ({ status: "error", error: "Not authorized" })
+        }
     }
 }

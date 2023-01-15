@@ -46,8 +46,8 @@ router.post("/registery", async (req, res) => {
         res.end(JSON.stringify({ status: "error", error: "Użytkownik już istnieje" }));
     } else {
         const user = new User(0, email, password, name, surname, "", isTrainer, 0, nick);
-        let parsedUser = await database.registerUser(user);
-        res.end(JSON.stringify(parsedUser))
+        let registerResult = await database.registerUser(user);
+        res.end(JSON.stringify(registerResult))
     }
 })
 
@@ -66,16 +66,9 @@ router.post("/login", async (req, res) => {
         return
     }
 
-    let user = await database.loginUser(username, password)
+    let loginResult = await database.loginUser(username, password)
 
-    if (!user) {
-        res.end(JSON.stringify({ status: "error", error: "Nie poprawne hasło lub nazwa użytkownika" }))
-        return
-    }
-
-    req.session.user = user;
-    console.log(req.session.user)
-    res.end(JSON.stringify(user))
+    res.end(JSON.stringify(loginResult))
 })
 
 router.post("/edit", verifyUser, (req, res) => {
@@ -100,6 +93,11 @@ router.post("/edit", verifyUser, (req, res) => {
         }))
 
     });
+})
+
+router.get("/getuser", verifyUser, async (req, res) => {
+    let result = await database.getUser(req.header("Custom-Token"))
+    res.end(JSON.stringify(result))
 })
 
 module.exports = router;
