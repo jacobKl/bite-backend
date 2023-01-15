@@ -36,6 +36,13 @@ router.post("/create", verifyUser, async (req, res) => {
 router.get("/take/:id", async (req, res) => {
     const results = await database.getCoursesForUser(req.params.id)
 
+    let tab = []
+    for(let i in results) {
+        const courses = await database.getCourse(results[i].course_id)
+        results[i].course = courses[0]
+        results[i].course.steps = await database.getCourseSteps(results[i].course_id)
+    }
+
     res.send(results)
 })
 
@@ -67,6 +74,21 @@ router.get("/", async (req, res) => {
 
     for (let i in courses) {
         courses[i]['steps'] = await database.getCourseSteps(courses[i]['id'])
+    }
+
+    res.send(courses)
+})
+
+router.get("/not/:userId", async (req, res) => {
+    const userCourses = await database.getCoursesForUser(req.params.userId)
+    let courses = await database.indexCourses()
+
+    for(let i in courses) {
+        for(let k in userCourses) {
+            if(courses[i].id == userCourses[k].course_id) {
+                courses.splice(i, 1)
+            }
+        }
     }
 
     res.send(courses)
