@@ -12,9 +12,10 @@ const database = new Database(DatabaseProvider)
 
 const router = express.Router()
 
-router.post("/set-prize/:id", async (req, res) => {
+router.post("/finish/:id", async (req, res) => {
+    await database.setCourseFinished(req.params.id, req.body.userid)
 
-    results = await database.setUserMoney(req.params.id, req.body.prize)
+    results = await database.setUserMoney(req.body.userid, req.body.prize)
 
     res.send({
         success: true

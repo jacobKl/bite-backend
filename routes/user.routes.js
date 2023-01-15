@@ -21,6 +21,12 @@ router.get("/registery", (req, res) => {
     res.sendFile(path.resolve("static/register.html"))
 })
 
+router.get("/", async (req, res) => {
+    const users = await database.indexUsers(req.query.id)
+
+    res.send(users)
+})
+
 /**
  * Endpoint: /user/registery
  * Po wykonaniu zapytania post zarejestrowany będzie użytkownik w momencie jeżeli przejdzie

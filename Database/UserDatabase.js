@@ -8,6 +8,17 @@ module.exports = class UserDatabase {
     constructor(database) {
         this.database = database.provideDatabase()
     }
+
+    indexUsers() {
+        return new Promise(async (resolve, reject) => {
+            const [results, metadata] = await this.database.sequelize.query(`SELECT *
+                                                                             FROM users`)
+
+            resolve(results)
+        })
+    }
+
+
     /**
      * Metoda do rejestracji użytkownika. Po zahashowaniu hasła wysyła zapytanie sql z instrukcją
      * INSERT. Jeżeli z metadanych

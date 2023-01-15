@@ -140,6 +140,14 @@ module.exports = class CoursesDatabase {
         })
     }
 
+    setCourseFinished(courseId, userId) {
+        return new Promise(async (resolve, reject) => {
+            const [results, metadata] = await this.database.sequelize.query(`UPDATE courses_in_progress SET finished = true WHERE user_id=${userId} AND course_id=${courseId}`)
+
+            resolve(results)
+        })
+    }
+
     setUserMoney(id, money) {
         return new Promise(async (resolve, reject) => {
             const [results, metadata] = await this.database.sequelize.query(`UPDATE users SET money = money + ${money} WHERE id=${id}`)
