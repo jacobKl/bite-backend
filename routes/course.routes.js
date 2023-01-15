@@ -79,6 +79,21 @@ router.get("/", async (req, res) => {
     res.send(courses)
 })
 
+router.get("/not/:userId", async (req, res) => {
+    const userCourses = await database.getCoursesForUser(req.params.userId)
+    let courses = await database.indexCourses()
+
+    for(let i in courses) {
+        for(let k in userCourses) {
+            if(courses[i].id == userCourses[k].course_id) {
+                courses.splice(i, 1)
+            }
+        }
+    }
+
+    res.send(courses)
+})
+
 router.get("/:id", async (req, res) => {
     const course = await database.getCourse(req.params.id)
 
