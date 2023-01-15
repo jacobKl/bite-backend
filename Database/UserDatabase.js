@@ -9,7 +9,8 @@ module.exports = class UserDatabase {
         this.database = database.provideDatabase()
     }
     /**
-     * 
+     * Metoda do rejestracji użytkownika. Po zahashowaniu hasła wysyła zapytanie sql z instrukcją
+     * INSERT. Jeżeli z metadanych
      * @param {User} user 
      */
     registerUser(user) {
@@ -57,8 +58,13 @@ module.exports = class UserDatabase {
                     type: QueryTypes.SELECT
                 }
             )
+
+            if(results === undefined) {
+                resolve({ status: "error", error: "Invalid username or password" })
+                return
+            }
+
             bcrypt.compare(password, results.password, async (err, result) => {
-                const { password: _, ...parsedResults } = results
                 if (result) {
                     await this.rewriteToken(username)
                     let createdUser = await this.database.sequelize.query("SELECT * FROM users WHERE nick=:nick LIMIT 1", {

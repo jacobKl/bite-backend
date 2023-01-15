@@ -16,10 +16,16 @@ const router = express.Router()
 router.use(express.json())
 router.use(express.urlencoded())
 
+//Wstępnie do wywalenia
 router.get("/registery", (req, res) => {
     res.sendFile(path.resolve("static/register.html"))
 })
 
+/**
+ * Endpoint: /user/registery
+ * Po wykonaniu zapytania post zarejestrowany będzie użytkownik w momencie jeżeli przejdzie
+ * wszystkie testy.
+ */
 router.post("/registery", async (req, res) => {
     const {
         password,
@@ -55,6 +61,11 @@ router.get("/login", (req, res) => {
     res.sendFile(path.resolve("static/login.html"))
 })
 
+/**
+ * Endpoint: /user/login
+ * Po wykonaniu zapytania post, do użytkownika zostaną wysłane dane o użytkowniku z bazy
+ * danych. W przeciwnym przypadku zostanie wysłany error z odpowiednią wiadomością.
+ */
 router.post("/login", async (req, res) => {
     const {
         password,
@@ -70,7 +81,10 @@ router.post("/login", async (req, res) => {
 
     res.end(JSON.stringify(loginResult))
 })
-
+/**
+ * Endpoint: /user/edit
+ * Aktualnie niewykorzystywany
+ */
 router.post("/edit", verifyUser, (req, res) => {
     const form = formidable({})
     form.uploadDir = __dirname + "/../static/"
