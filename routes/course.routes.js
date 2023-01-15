@@ -34,8 +34,14 @@ router.post("/create", verifyUser, async (req, res) => {
 })
 
 router.get("/take/:id", async (req, res) => {
-    console.log('chuj mi na imie')
     const results = await database.getCoursesForUser(req.params.id)
+
+    let tab = []
+    for(let i in results) {
+        const courses = await database.getCourse(results[i].course_id)
+        results[i].course = courses[0]
+        results[i].course.steps = await database.getCourseSteps(results[i].course_id)
+    }
 
     res.send(results)
 })
